@@ -4,7 +4,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/dt/ex_gram.svg)](https://hex.pm/packages/ex_gram)
 [![Hex.pm](https://img.shields.io/hexpm/dw/ex_gram.svg)](https://hex.pm/packages/ex_gram)
 [![Inline docs](http://inch-ci.org/github/rockneurotiko/ex_gram.svg)](http://inch-ci.org/github/rockneurotiko/ex_gram)
-[![Build Status](https://travis-ci.org/rockneurotiko/ex_gram.svg?branch=master)](https://travis-ci.org/rockneurotiko/ex_gram)
+[![Build Status](https://travis-ci.com/rockneurotiko/ex_gram.svg?branch=master)](https://travis-ci.com/rockneurotiko/ex_gram)
 
 ExGram is a library to build Telegram Bots, you can use the low-level methods and models, or use the really opinionated framework included.
 
@@ -15,7 +15,7 @@ Add `ex_gram` as dependency in `mix.exs`
 ``` elixir
 def deps do
     [
-      {:ex_gram, "~> 0.14"},
+      {:ex_gram, "~> 0.22"},
       {:tesla, "~> 1.2"},
       {:hackney, "~> 1.12"},
       {:jason, ">= 1.0.0"}
@@ -52,7 +52,7 @@ config :tesla, adapter: Tesla.Adapter.Gun
 
 On deps:
 ``` elixir
-{:maxwell, "~> 2.2.1"},
+{:maxwell, "~> 2.3.1"},
 {:hackney, "~> 1.12"},
 ```
 
@@ -91,7 +91,7 @@ If you use the framework, you will need to add `ExGram` and your bot (let's say 
 
 ``` elixir
 children = [
-  ExGram # This will setup the Registry.ExGram,
+  ExGram, # This will setup the Registry.ExGram
   {MyBot, [method: :polling, token: "TOKEN"]}
 ]
 ```
@@ -209,12 +209,16 @@ This are the type of tuples that `handle/2` can receive as first parameter:
 
 ### Sending files
 
-`ExGram` lets you send files by id (this means using files already uploaded to Telegram servers) or by givin a local path. Here is how:
+`ExGram` lets you send files by id (this means using files already uploaded to Telegram servers), providing a local path, or with the content directly. Some examples of this methods for sending files:
 ``` elixir
-ExGram.send_document(chat_id, document_id)                # By document ID
+ExGram.send_document(chat_id, document_id)                                     # By document ID
 
-ExGram.send_document(chat_id, {:file, "path/to/file"})    # By local path
+ExGram.send_document(chat_id, {:file, "path/to/file"})                         # By local path
+
+ExGram.send_document(chat_id, {:file_content, "FILE CONTENT", "filename.txt"}) # By content
 ```
+
+This three ways of sending files works when the API has a file field, for example `send_photo`, `send_audio`, `send_video`, ... 
 
 ## Library Usage
 

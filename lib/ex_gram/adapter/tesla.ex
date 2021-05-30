@@ -73,6 +73,10 @@ if Code.ensure_loaded?(Tesla) do
       Tesla.Multipart.add_file(mp, path, name: name)
     end
 
+    defp add_multipart_part({:file_content, name, content, filename}, mp) do
+      Tesla.Multipart.add_file_content(mp, content, filename, name: name)
+    end
+
     defp add_multipart_part({name, value}, mp) do
       Tesla.Multipart.add_field(mp, name, value)
     end
@@ -115,7 +119,7 @@ if Code.ensure_loaded?(Tesla) do
     defp http_adapter(), do: Application.get_env(:tesla, :adapter) || Tesla.Adapter.Hackney
 
     defp opts(), do: [adapter: adapter_opts()]
-    defp adapter_opts(), do: [connect_timeout: 5_000, timeout: 60_000, recv_timeout: 60_000]
+    defp adapter_opts(), do: [connect_timeout: 20_000, timeout: 60_000, recv_timeout: 60_000]
 
     defp format_middleware({m, f, a}) do
       case apply(m, f, a) do

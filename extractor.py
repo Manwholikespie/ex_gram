@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import requests
+import pyperclip
 
 DEBUG = True
-# URL = "https://raw.githubusercontent.com/rockneurotiko/telegram_api_json/master/exports/tg_api.json"
-URL = "https://raw.githack.com/rockneurotiko/telegram_api_json/master/exports/tg_api_pretty.json"
+URL = "https://raw.githubusercontent.com/rockneurotiko/telegram_api_json/master/exports/tg_api.json"
+# URL = "https://raw.githack.com/rockneurotiko/telegram_api_json/master/exports/tg_api_pretty.json"
 
 
 def debug(t):
@@ -18,15 +19,15 @@ def maybe_atom(name, is_return):
 
 def parse_type_name(name, is_return):
     if name == "int":
-        return maybe_atom("integer", is_return)
+        return ":integer" # maybe_atom("integer", is_return)
     if name == "str":
-        return "String" if is_return else ":string"
+        return ":string" # return "String" if is_return else ":string"
     if name == "bool":
-        return maybe_atom("boolean", is_return)
+        return ":boolean" # maybe_atom("boolean", is_return)
     if name == "float":
-        return maybe_atom("float", is_return)
+        return ":float"  # maybe_atom("float", is_return)
     if name == "file":
-        return maybe_atom("file", is_return)
+        return ":file"  # maybe_atom("file", is_return)
     if name == "True" or name == "true":
         return "true"
     if name == "String":
@@ -95,12 +96,17 @@ def generate_generic(model):
     types_s = ", ".join(model['subtypes'])
     types_t = " | ".join(["{}.t()".format(x) for x in model['subtypes']])
     return """defmodule {} do
+  @moduledoc \"\"\"
+  {} model. Valid subtypes: {}  
+  \"\"\"
   @type t :: {}
 
-  def subtypes() do
+  def decode_as, do: %{}  
+    
+  def subtypes do
     [{}]
   end
-    end""".format(name, types_t, types_s)
+  end""".format(name, name, types_s, types_t, "{}", types_s)
 
 
 def main():
@@ -110,24 +116,41 @@ def main():
     methods = [generate_method(method) for method in definition['methods']]
     generics = [generate_generic(generic) for generic in definition['generics']]
 
-    debug("----------METHODS-----------\n")
-    print("# AUTO GENERATED")
-    print()
-    print("# Methods")
-    print()
-    print("\n\n".join(methods))
-    debug("{} methods\n".format(len(methods)))
+    methods_str = "\n\n".join(methods)
+    models_str = "\n\n  ".join(models)
+    generics_str = "\n\n ".join(generics)
 
-    debug("----------MODELS-----------\n")
-    print("# Models")
-    print()
-    print("\ndefmodule Model do")
-    print("\n\n  ".join(models))
-    debug("{} models\n".format(len(models)))
-    print("\n\n ".join(generics))
-    debug("{} generics\n".format(len(generics)))
-    print("end")
+    text = """
+# ----------METHODS-----------
 
+# AUTO GENERATED
+
+# Methods
+
+{}
+
+# {} methods
+
+# ----------MODELS-----------
+
+# Models
+
+defmodule Model do
+  @moduledoc \"\"\"
+  Telegram API Model structures  
+  \"\"\"
+    
+  {}
+
+  # {} models
+
+  {}
+
+  # {} generics
+end""".format(methods_str, len(methods), models_str, len(models), generics_str, len(generics))
+
+    print(text)
+    pyperclip.copy(text)
 
 if __name__ == "__main__":
     main()

@@ -6,13 +6,15 @@ if Code.ensure_loaded?(Maxwell) do
 
     @behaviour ExGram.Adapter
 
+    @dialyzer {:nowarn_function, get!: 1, get!: 2, post!: 1, post!: 2, call_middleware: 1}
+
     use Maxwell.Builder, ~w(get post)a
 
     @base_url "https://api.telegram.org"
 
     middleware(Maxwell.Middleware.BaseUrl, ExGram.Config.get(:ex_gram, :base_url, @base_url))
     middleware(Maxwell.Middleware.Headers, %{"Content-Type" => "application/json"})
-    middleware(Maxwell.Middleware.Opts, connect_timeout: 5000, recv_timeout: 30000)
+    middleware(Maxwell.Middleware.Opts, connect_timeout: 20_000, recv_timeout: 30_000)
 
     middleware(
       Maxwell.Middleware.Json,
@@ -78,6 +80,11 @@ if Code.ensure_loaded?(Maxwell) do
     defp encode_multipart_part({:file, name, path}) do
       disposition = {"form-data", [{"name", name}, {"filename", path}]}
       {:file, path, disposition, []}
+    end
+
+    defp encode_multipart_part({:file_content, name, content, filename}) do
+      disposition = {"form-data", [{"name", name}, {"filename", filename}]}
+      {:file_content, content, filename, disposition, []}
     end
 
     defp encode_multipart_part({name, value}) do

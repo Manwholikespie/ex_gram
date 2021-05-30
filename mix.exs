@@ -1,7 +1,7 @@
 defmodule ExGram.Mixfile do
   use Mix.Project
 
-  @version "0.14.0"
+  @version "0.23.0"
 
   def project do
     [
@@ -15,6 +15,10 @@ defmodule ExGram.Mixfile do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      dialyzer: [
+        plt_add_deps: :app_tree,
+        plt_add_apps: [:tesla, :maxwell, :mix, :eex]
+      ],
       docs: [
         main: "readme",
         extras: ["README.md"]
@@ -55,13 +59,14 @@ defmodule ExGram.Mixfile do
       # Maxwell or Tesla
       {:hackney, "~> 1.12", optional: true},
       # Maxwell adapter
-      {:maxwell, "~> 2.2.1", optional: true},
+      {:maxwell, "~> 2.3.1", optional: true},
       # JSON encoders/decoders
       {:jason, ">= 1.0.0", optional: true},
       {:poison, ">= 1.0.0", optional: true},
       # Development
-      {:dialyxir, "~> 0.5.0", only: [:dev], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.23", only: :dev},
       {:inch_ex, "~> 0.5.0", only: :docs}
     ]
   end
